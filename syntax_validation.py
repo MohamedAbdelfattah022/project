@@ -3,7 +3,6 @@ from enum import Enum
 from tokens import Token, TokenType
 
 class SyntaxError(Exception):
-    """Custom exception for syntax validation errors."""
     def __init__(self, message: str, line: int, position: int):
         super().__init__(f"Syntax Error at line {line}, position {position}: {message}")
         self.message = message
@@ -12,10 +11,6 @@ class SyntaxError(Exception):
 
 
 class SyntaxValidator:
-    """
-    A class to validate syntax rules for a given list of tokens.
-    """
-
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
@@ -24,13 +19,6 @@ class SyntaxValidator:
         self.had_return = False
 
     def validate(self) -> bool:
-        """
-        Validate the syntax of the token list.
-        Returns:
-            bool: True if validation passes.
-        Raises:
-            SyntaxError: If any syntax errors are encountered.
-        """
         while not self._is_at_end():
             self._validate_statement()
 
@@ -48,9 +36,6 @@ class SyntaxValidator:
     # ----------------------------------------
 
     def _validate_statement(self):
-        """
-        Dispatch the validation to the appropriate statement handler based on the current token.
-        """
         token = self._peek()
 
         if token.type == TokenType.IDENTIFIER and (
@@ -81,7 +66,9 @@ class SyntaxValidator:
                 f"Unexpected token: {token.lexeme}",
                 token.line,
                 token.position
-            )    # ----------------------------------------
+            )    
+
+    # ----------------------------------------
     # Specific Statement Handlers
     # ----------------------------------------
 
@@ -101,17 +88,16 @@ class SyntaxValidator:
     def _validate_if_statement(self):
         """Validate an IF statement."""
         self._consume(TokenType.IF, "Expected 'IF'")
-        self._validate_condition()  # Parse the condition
-        self._consume(TokenType.THEN, "Expected 'THEN' after condition")  # THEN must follow
+        self._validate_condition() 
+        self._consume(TokenType.THEN, "Expected 'THEN' after condition")
         self.scope_stack.append("IF")
 
-        self._validate_block(TokenType.ENDIF, TokenType.ELSE)  # ELSE is optional
+        self._validate_block(TokenType.ENDIF, TokenType.ELSE)
 
         self.scope_stack.pop()
 
 
     def _validate_while_statement(self):
-        """Validate a WHILE statement."""
         self._consume(TokenType.WHILE, "Expected 'WHILE'")
         self._validate_condition()
         self._consume(TokenType.DO, "Expected 'DO' after condition")
@@ -122,7 +108,6 @@ class SyntaxValidator:
         self.scope_stack.pop()
 
     def _validate_for_statement(self):
-        """Validate a FOR statement."""
         self._consume(TokenType.FOR, "Expected 'FOR'")
         self._consume(TokenType.IDENTIFIER, "Expected identifier after 'FOR'")
         
@@ -150,7 +135,6 @@ class SyntaxValidator:
         self.scope_stack.pop()
 
     def _validate_do_while_statement(self):
-        """Validate a DO-WHILE statement."""
         self._consume(TokenType.DO, "Expected 'DO'")
         self.scope_stack.append("DO")
 
@@ -162,7 +146,6 @@ class SyntaxValidator:
         self.scope_stack.pop()
 
     def _validate_repeat_until_statement(self):
-        """Validate a REPEAT-UNTIL statement."""
         self._consume(TokenType.REPEAT, "Expected 'REPEAT'")
         self.scope_stack.append("REPEAT")
 
@@ -174,7 +157,6 @@ class SyntaxValidator:
         self.scope_stack.pop()
 
     def _validate_function_definition(self):
-        """Validate a function definition."""
         self._consume(TokenType.FUNC, "Expected 'FUNC'")
         self._consume(TokenType.IDENTIFIER, "Expected function name")
         self._consume(TokenType.LEFT_PAREN, "Expected '(' after function name")
@@ -201,14 +183,12 @@ class SyntaxValidator:
         self.had_return = False
 
     def _validate_return_statement(self):
-        """Validate a return statement."""
         self._consume(TokenType.RETURN, "Expected 'RETURN'")
         if not self._check(TokenType.END):
             self._validate_expression()
         self.had_return = True
 
     def _validate_function_call(self):
-        """Validate a function call."""
         self._consume(TokenType.CALL, "Expected 'CALL'")
         self._consume(TokenType.IDENTIFIER, "Expected function name")
 
@@ -225,8 +205,8 @@ class SyntaxValidator:
         """
         Validate a block of statements until an end token.
         Args:
-            end_token (TokenType): The token marking the end of the block.
-            optional_mid_token (Optional[TokenType]): An optional token that can appear within the block.
+            end_token (TokenType): the end token of the block.
+            optional_mid_token (Optional[TokenType]): optional token that can appear within the block.
         """
         while not self._check(end_token) and (optional_mid_token is None or not self._check(optional_mid_token)):
             self._validate_statement()
@@ -238,10 +218,6 @@ class SyntaxValidator:
         self._consume(end_token, f"Expected '{end_token.name}'")
 
     def _validate_condition(self):
-        """
-        Validate a conditional expression.
-        Ensures that the condition consists of valid comparisons and logical operators.
-        """
         self._validate_expression()
 
         while self._peek().type in {TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.GREATER, TokenType.LESS,
@@ -251,14 +227,12 @@ class SyntaxValidator:
 
 
     def _validate_expression(self):
-        """Validate an arithmetic expression."""
         self._validate_term()
         while self._is_arithmetic_operator():
             self._advance()
             self._validate_term()
 
     def _validate_term(self):
-        """Validate a single term in an expression."""
         if self._match(TokenType.NUMBER) or self._match(TokenType.STRING):
             return
         
@@ -291,9 +265,8 @@ class SyntaxValidator:
                 self._consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters")
             return
         
-        raise SyntaxError("Expected a valid term", self._peek().line, self._peek().position)    # ----------------------------------------
-
-
+        raise SyntaxError("Expected a valid term", self._peek().line, self._peek().position) 
+    
     def _advance(self) -> Token:
         if not self._is_at_end():
             self.current += 1
@@ -336,7 +309,6 @@ class SyntaxValidator:
         return self._peek().type in {TokenType.INCREMENT, TokenType.DECREMENT}
 
     def _validate_increment_decrement(self):
-        """Validate increment/decrement statement."""
         self._consume(TokenType.IDENTIFIER, "Expected identifier before increment/decrement")
         if not self._match(TokenType.INCREMENT) and not self._match(TokenType.DECREMENT):
             raise SyntaxError(
@@ -346,13 +318,12 @@ class SyntaxValidator:
             )
 
     def _check_next(self, token_type: TokenType) -> bool:
-        """Check if the next token matches the expected type without consuming it."""
+        """Check if the next token without consuming it."""
         if self.current + 1 >= len(self.tokens):
             return False
         return self.tokens[self.current + 1].type == token_type
 
     def _validate_parameter_list(self):
-        """Validate a list of parameters in a function definition or call."""
         if self._match(TokenType.IDENTIFIER):
             while self._match(TokenType.COMMA):
                 self._consume(TokenType.IDENTIFIER, "Expected parameter name after ','")
