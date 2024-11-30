@@ -137,4 +137,81 @@ FOR i = 0 TO 5 DO
     j++
 ENDFOR
 """,
+
+
+'''
+LET my@variable = 5
+LET $price = 100
+''',
+
+'''
+LET y *** 3
+'''
+,
+'''Let x = 5
+If x > 10 THen
+    CALL printValue
+ENDif
+'''
+
+,
+'''
+CALL myFunction(,)
+CALL (x, y)
+CALL
+'''
+,
+'''
+LET list = [1,,2]
+'''
+,
+'''
+LET array = [1, 2,]
+'''
+,
+'''
+LET empty = [],,
+'''
+,
+'''
+LET x = ++ 5
+''',
+'''
+LET y = -- 10
+''',
+
+'''
+LET z = 15++--
+'''
+,
+
+'''
+FOR i IN Range(1,,10) DO
+    CALL print
+ENDFOR
+'''
+,
+'''
+LET y =+ 10
+''',
+
+'''
+LET y += 10
+'''
+,
+'''
+LET 1variable = 10
+LET 123name = "John"
+''',
+
+'''
+LET x = 10
+{ This is an unclosed comment
+LET y = 20
+'''
 ]
+
+
+
+
+
