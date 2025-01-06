@@ -71,19 +71,36 @@ class SyntaxValidator:
 
         if self._match(TokenType.EQUAL):
             node.add_child(ParseTreeNode("="))
+            expression_node = self._validate_expression()
+            node.add_child(expression_node)
         elif self._match(TokenType.PLUS_EQUAL):
             node.add_child(ParseTreeNode("+="))
+            expression_node = self._validate_expression()
+            node.add_child(expression_node)
         elif self._match(TokenType.MULTIPLY_EQUAL):
             node.add_child(ParseTreeNode("*="))
+            expression_node = self._validate_expression()
+            node.add_child(expression_node)
+        elif self._match(TokenType.MINUS_EQUAL):
+            node.add_child(ParseTreeNode("-="))
+            expression_node = self._validate_expression()
+            node.add_child(expression_node)
+        elif self._match(TokenType.DIVIDE_EQUAL):
+            node.add_child(ParseTreeNode("/="))
+            expression_node = self._validate_expression()
+            node.add_child(expression_node)
+        elif self._match(TokenType.INCREMENT):
+            node.add_child(ParseTreeNode("++"))
+            # No expression validation for increment operator
+        elif self._match(TokenType.DECREMENT):
+            node.add_child(ParseTreeNode("--"))
+            # No expression validation for decrement operator
         else:
             raise SyntaxError(
-                "Expected '=', '+=', or '*=' for assignment",
+                "Expected '=', '+=', '-=', '*=', '/=', '++', or '--' for assignment",
                 self._peek().line,
                 self._peek().position
             )
-
-        expression_node = self._validate_expression()
-        node.add_child(expression_node)
         return node
 
     def _validate_let_statement(self) -> ParseTreeNode:
